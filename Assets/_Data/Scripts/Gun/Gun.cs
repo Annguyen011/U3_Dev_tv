@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
+    public static Action OnShoot;
+
     public Transform BulletSpawnPoint => _bulletSpawnPoint;
 
     [SerializeField] private Transform _bulletSpawnPoint;
@@ -13,7 +15,19 @@ public class Gun : MonoBehaviour
 
     private float lastFireTime = 0f;
     private Vector2 mousePos;
-    
+
+    private void OnEnable()
+    {
+        OnShoot += ShootProjectile;
+        OnShoot += ResetLastFireTime;
+    }
+
+    private void OnDisable()
+    {
+        OnShoot -= ShootProjectile;
+        OnShoot -= ResetLastFireTime;
+    }
+
     private void Update()
     {
         Shoot();
@@ -31,15 +45,19 @@ public class Gun : MonoBehaviour
 
     private void Shoot()
     {
-        if (Input.GetMouseButtonDown(0) && Time.time >= lastFireTime + gunFireCD) {
+        if (Input.GetMouseButtonDown(0) && Time.time >= lastFireTime) {
 
-            ShootProjectile();
+            OnShoot?.Invoke();
         }
+    }
+
+    private void ResetLastFireTime()
+    {
+        lastFireTime = Time.time + gunFireCD;
     }
 
     private void ShootProjectile()
     {
-        lastFireTime = Time.time;
         Bullet newBullet = Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.identity);
         newBullet.Init(_bulletSpawnPoint.position, mousePos);
     }
