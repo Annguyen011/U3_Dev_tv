@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,8 +9,10 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _jumpStrength = 7f;
+    [SerializeField] private float coyoteTime = .5f;
 
     private bool _isGrounded = false;
+    private float coyoteTimer;
     private Vector2 _movement;
 
     private Rigidbody2D _rigidBody;
@@ -23,8 +26,14 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         GatherInput();
+        CoyteTime();
         Jump();
         HandleSpriteFlip();
+    }
+
+    private void CoyteTime()
+    {
+
     }
 
     private void FixedUpdate() {
