@@ -9,7 +9,9 @@ public class Gun : MonoBehaviour
 
     [SerializeField] private Transform _bulletSpawnPoint;
     [SerializeField] private Bullet _bulletPrefab;
+    [SerializeField] private float gunFireCD = .5f;
 
+    private float lastFireTime = 0f;
     private Vector2 mousePos;
     
     private void Update()
@@ -29,13 +31,15 @@ public class Gun : MonoBehaviour
 
     private void Shoot()
     {
-        if (Input.GetMouseButtonDown(0)) {
+        if (Input.GetMouseButtonDown(0) && Time.time >= lastFireTime + gunFireCD) {
+
             ShootProjectile();
         }
     }
 
     private void ShootProjectile()
     {
+        lastFireTime = Time.time;
         Bullet newBullet = Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.identity);
         newBullet.Init(_bulletSpawnPoint.position, mousePos);
     }
