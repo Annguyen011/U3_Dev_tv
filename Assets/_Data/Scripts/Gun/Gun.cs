@@ -16,15 +16,24 @@ public class Gun : MonoBehaviour
     private float lastFireTime = 0f;
     private Vector2 mousePos;
 
+    private Animator _animator;
+
+    private void Awake()
+    {
+        _animator = GetComponent<Animator>();
+    }
+
     private void OnEnable()
     {
         OnShoot += ShootProjectile;
+        OnShoot += FireAnimation;
         OnShoot += ResetLastFireTime;
     }
 
     private void OnDisable()
     {
         OnShoot -= ShootProjectile;
+        OnShoot -= FireAnimation;
         OnShoot -= ResetLastFireTime;
     }
 
@@ -49,6 +58,11 @@ public class Gun : MonoBehaviour
 
             OnShoot?.Invoke();
         }
+    }
+
+    private void FireAnimation()
+    {
+        _animator.Play("Fire", 0,0);
     }
 
     private void ResetLastFireTime()
