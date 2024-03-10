@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class Gun : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class Gun : MonoBehaviour
     [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private float gunFireCD = .5f;
 
+    private ObjectPool<Bullet> bulletPool;
+
     private float lastFireTime = 0f;
     private Vector2 mousePos;
 
@@ -21,6 +24,11 @@ public class Gun : MonoBehaviour
     private void Awake()
     {
         _animator = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        CreateBulletPool();
     }
 
     private void OnEnable()
@@ -72,7 +80,38 @@ public class Gun : MonoBehaviour
 
     private void ShootProjectile()
     {
-        Bullet newBullet = Instantiate(_bulletPrefab, _bulletSpawnPoint.position, Quaternion.identity);
-        newBullet.Init(_bulletSpawnPoint.position, mousePos);
+        Bullet newBullet = bulletPool.Get();
+
+        newBullet.Init(this, _bulletSpawnPoint.position, mousePos);
     }
+
+    #region Pool
+    private void CreateBulletPool()
+    {
+        bulletPool = new ObjectPool<Bullet>(
+            () =>
+            {
+                return Instantiate(_bulletPrefab);
+            },
+            bullet =>
+            {
+                bullet.gameObject.SetActive(true);
+            },
+            bullet =>
+            {
+                bullet.gameObject.SetActive(false);
+            },
+            bullet =>
+            {
+                Destroy(bullet);
+            }
+            );
+    }
+
+    public void ReleaseBullet(Bullet bullet)
+    {
+        bulletPool.Release(bullet);
+    }
+
+    #endregion
 }
